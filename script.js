@@ -28,7 +28,7 @@ myButton.addEventListener("click", function () {
    NUMBER GUESSING GAME
 ========================= */
 
-const numbers = [
+const boxes = [
     document.getElementById("s1"),
     document.getElementById("s2"),
     document.getElementById("s3"),
@@ -37,61 +37,123 @@ const numbers = [
     document.getElementById("s6")
 ];
 
-const btnPresent = document.getElementById("here");
-const btnNext = document.getElementById("nxt");
+const belongButton = document.getElementById("here");
+const nextButton = document.getElementById("nxt");
 const gameText = document.getElementById("text");
 const closeButton = document.getElementById("close");
-
 const gameBox = document.querySelector(".game-box");
 
 
 /*
-   Four cards are enough to identify
-   every number from 1 to 10.
+   CARD SYSTEM
+
+   Card 1 contains:
+   1, 3, 5, 7, 9
+
+   Card 2 contains:
+   2, 3, 6, 7, 10
+
+   Card 3 contains:
+   4, 5, 6, 7
+
+   Card 4 contains:
+   8, 9, 10
+
+   The values are:
 
    Card 1 = 1
    Card 2 = 2
    Card 3 = 4
    Card 4 = 8
+
+   Adding the values of the cards
+   where the number appears gives
+   the original number.
 */
 
 const cards = [
+
     {
-        key: 1,
-        values: [1, 3, 5, 7, 9]
+        numbers: [1, 3, 5, 7, 9],
+        value: 1
     },
 
     {
-        key: 2,
-        values: [2, 3, 6, 7, 10]
+        numbers: [2, 3, 6, 7, 10],
+        value: 2
     },
 
     {
-        key: 4,
-        values: [4, 5, 6, 7]
+        numbers: [4, 5, 6, 7],
+        value: 4
     },
 
     {
-        key: 8,
-        values: [8, 9, 10]
+        numbers: [8, 9, 10],
+        value: 8
     }
+
 ];
 
 
+/* Current card */
+
 let currentCard = 0;
+
+
+/* Final guessed number */
+
 let guessedNumber = 0;
 
 
-/* Hide Belong button initially */
+/* =========================
+   INITIAL STATE
+========================= */
 
-btnPresent.style.visibility = "hidden";
+belongButton.style.visibility = "hidden";
+
+nextButton.textContent = "Let's Go";
 
 
 /* =========================
-   NEXT BUTTON
+   LET'S GO / CONTINUE
 ========================= */
 
-btnNext.addEventListener("click", function () {
+nextButton.addEventListener("click", function () {
+
+    /*
+       If all cards have already been checked,
+       start a new game.
+    */
+
+    if (currentCard >= cards.length) {
+
+        resetGame();
+
+        showCard();
+
+        return;
+
+    }
+
+
+    /*
+       If the button says Continue,
+       the current card was NOT selected.
+
+       Therefore move to the next card.
+    */
+
+    if (nextButton.textContent === "Continue") {
+
+        currentCard++;
+
+    }
+
+
+    /*
+       Show the next card.
+    */
 
     showCard();
 
@@ -102,21 +164,29 @@ btnNext.addEventListener("click", function () {
    BELONG BUTTON
 ========================= */
 
-btnPresent.addEventListener("click", function () {
+belongButton.addEventListener("click", function () {
 
-    guessedNumber += cards[currentCard - 1].key;
+    /*
+       The number exists in this card.
+
+       Add the card's value to the answer.
+    */
+
+    guessedNumber += cards[currentCard].value;
+
+
+    /*
+       Move to the next card.
+    */
 
     currentCard++;
 
-    if (currentCard <= cards.length) {
 
-        showCard();
+    /*
+       Show next card.
+    */
 
-    } else {
-
-        showResult();
-
-    }
+    showCard();
 
 });
 
@@ -127,6 +197,11 @@ btnPresent.addEventListener("click", function () {
 
 function showCard() {
 
+    /*
+       If all 4 cards are checked,
+       show the final answer.
+    */
+
     if (currentCard >= cards.length) {
 
         showResult();
@@ -136,73 +211,94 @@ function showCard() {
     }
 
 
-    const card = cards[currentCard];
-
-    numbers.forEach(function (box, index) {
-
-        if (index < card.values.length) {
-
-            box.textContent = card.values[index];
-
-        } else {
-
-            box.textContent = "";
-
-        }
-
-    });
+    const current = cards[currentCard];
 
 
-    gameText.textContent =
-        "Is your number in this box? Click Belong if YES, otherwise click Continue.";
+    /*
+       Clear all six boxes first.
+    */
 
-    btnPresent.style.visibility = "visible";
-
-    btnNext.textContent = "Continue";
-
-    currentCard++;
-
-}
-
-
-/* =========================
-   SHOW FINAL RESULT
-========================= */
-
-function showResult() {
-
-    numbers.forEach(function (box) {
+    boxes.forEach(function (box) {
 
         box.textContent = "";
 
     });
 
 
-    if (guessedNumber >= 1 && guessedNumber <= 10) {
+    /*
+       Put the numbers into the boxes.
+    */
 
-        gameText.innerHTML =
-            "🎉 I guess your number is <strong>" +
-            guessedNumber +
-            "</strong>!";
+    current.numbers.forEach(function (number, index) {
 
-    } else {
+        boxes[index].textContent = number;
 
-        gameText.textContent =
-            "Hmm... something went wrong. Please try again.";
-
-    }
+    });
 
 
-    btnPresent.style.visibility = "hidden";
+    /*
+       Update instruction.
+    */
 
-    btnNext.textContent = "Play Again";
+    gameText.textContent =
+        "Is your number in this card? Click Belong if YES, otherwise click Continue.";
 
 
-    btnNext.onclick = function () {
+    /*
+       Show Belong button.
+    */
 
-        resetGame();
+    belongButton.style.visibility = "visible";
 
-    };
+
+    /*
+       Change button text.
+    */
+
+    nextButton.textContent = "Continue";
+
+}
+
+
+/* =========================
+   SHOW RESULT
+========================= */
+
+function showResult() {
+
+    /*
+       Clear numbers.
+    */
+
+    boxes.forEach(function (box) {
+
+        box.textContent = "";
+
+    });
+
+
+    /*
+       Display answer.
+    */
+
+    gameText.innerHTML =
+        "🎉 I guess your number is <strong>" +
+        guessedNumber +
+        "</strong>!";
+
+
+    /*
+       Hide Belong.
+    */
+
+    belongButton.style.visibility = "hidden";
+
+
+    /*
+       Change Continue to Play Again.
+    */
+
+    nextButton.textContent = "Play Again";
 
 }
 
@@ -217,18 +313,21 @@ function resetGame() {
 
     guessedNumber = 0;
 
-    btnPresent.style.visibility = "hidden";
 
-    btnNext.textContent = "Let's Go";
+    boxes.forEach(function (box) {
 
-    btnNext.onclick = function () {
+        box.textContent = "";
 
-        showCard();
+    });
 
-    };
 
     gameText.textContent =
         "Guess a number from 1 to 10";
+
+
+    belongButton.style.visibility = "hidden";
+
+    nextButton.textContent = "Let's Go";
 
 }
 
