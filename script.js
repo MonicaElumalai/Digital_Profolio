@@ -1,5 +1,5 @@
 /* =========================
-   TOP BUTTON
+   BACK TO TOP BUTTON
 ========================= */
 
 const myButton = document.getElementById("myBtn");
@@ -14,7 +14,6 @@ window.addEventListener("scroll", function () {
 
 });
 
-
 myButton.addEventListener("click", function () {
 
     window.scrollTo({
@@ -26,231 +25,210 @@ myButton.addEventListener("click", function () {
 
 
 /* =========================
-   GAME
+   NUMBER GUESSING GAME
 ========================= */
 
-const var1 = document.getElementById("s1");
-const var2 = document.getElementById("s2");
-const var3 = document.getElementById("s3");
-const var4 = document.getElementById("s4");
-const var5 = document.getElementById("s5");
-const var6 = document.getElementById("s6");
+const numbers = [
+    document.getElementById("s1"),
+    document.getElementById("s2"),
+    document.getElementById("s3"),
+    document.getElementById("s4"),
+    document.getElementById("s5"),
+    document.getElementById("s6")
+];
 
 const btnPresent = document.getElementById("here");
 const btnNext = document.getElementById("nxt");
-
 const gameText = document.getElementById("text");
 const closeButton = document.getElementById("close");
+
 const gameBox = document.querySelector(".game-box");
 
 
-let count = 1;
-let resultNumber = 0;
+/*
+   Four cards are enough to identify
+   every number from 1 to 10.
+
+   Card 1 = 1
+   Card 2 = 2
+   Card 3 = 4
+   Card 4 = 8
+*/
+
+const cards = [
+    {
+        key: 1,
+        values: [1, 3, 5, 7, 9]
+    },
+
+    {
+        key: 2,
+        values: [2, 3, 6, 7, 10]
+    },
+
+    {
+        key: 4,
+        values: [4, 5, 6, 7]
+    },
+
+    {
+        key: 8,
+        values: [8, 9, 10]
+    }
+];
 
 
-/* Numbers used by the game */
-
-const key = [10, 20, 30, 50];
-
-
-/* Final answers */
-
-const result = {
-
-    20: 1,
-    30: 2,
-    70: 3,
-    40: 5,
-    10: 6,
-    50: 7,
-    60: 8,
-    80: 9,
-    90: 10,
-    100: 3
-
-};
+let currentCard = 0;
+let guessedNumber = 0;
 
 
-/* Initially hide the "Belong" button */
+/* Hide Belong button initially */
 
 btnPresent.style.visibility = "hidden";
 
 
 /* =========================
-   GAME EVENTS
+   NEXT BUTTON
 ========================= */
 
-btnNext.addEventListener("click", perform);
+btnNext.addEventListener("click", function () {
 
-btnPresent.addEventListener("click", guess);
+    showCard();
+
+});
 
 
 /* =========================
-   PLAYER SAYS YES
+   BELONG BUTTON
 ========================= */
 
-function guess() {
+btnPresent.addEventListener("click", function () {
 
-    resultNumber = resultNumber + key[count - 2];
+    guessedNumber += cards[currentCard - 1].key;
 
-    perform();
+    currentCard++;
 
-}
+    if (currentCard <= cards.length) {
+
+        showCard();
+
+    } else {
+
+        showResult();
+
+    }
+
+});
 
 
 /* =========================
-   GAME MAIN FUNCTION
+   SHOW CARD
 ========================= */
 
-function perform() {
+function showCard() {
 
-    gameText.innerHTML =
-        "Is your chosen number here? Click <b>Belong</b> if it is, otherwise click <b>Continue</b>.";
+    if (currentCard >= cards.length) {
 
+        showResult();
+
+        return;
+
+    }
+
+
+    const card = cards[currentCard];
+
+    numbers.forEach(function (box, index) {
+
+        if (index < card.values.length) {
+
+            box.textContent = card.values[index];
+
+        } else {
+
+            box.textContent = "";
+
+        }
+
+    });
+
+
+    gameText.textContent =
+        "Is your number in this box? Click Belong if YES, otherwise click Continue.";
 
     btnPresent.style.visibility = "visible";
 
     btnNext.textContent = "Continue";
 
+    currentCard++;
 
-    switch (count) {
-
-        case 1:
-
-            one();
-
-            count++;
-
-            break;
+}
 
 
-        case 2:
+/* =========================
+   SHOW FINAL RESULT
+========================= */
 
-            two();
+function showResult() {
 
-            count++;
+    numbers.forEach(function (box) {
 
-            break;
+        box.textContent = "";
 
-
-        case 3:
-
-            three();
-
-            count++;
-
-            break;
+    });
 
 
-        case 4:
+    if (guessedNumber >= 1 && guessedNumber <= 10) {
 
-            four();
+        gameText.innerHTML =
+            "🎉 I guess your number is <strong>" +
+            guessedNumber +
+            "</strong>!";
 
-            count++;
+    } else {
 
-            break;
-
-
-        default:
-
-            zero();
-
-
-            gameText.innerHTML =
-                "I guess you chose <b>" + result[resultNumber] + "</b> 🎉";
-
-
-            if (count > 4) {
-
-                count = 1;
-
-                resultNumber = 0;
-
-            }
-
-            break;
+        gameText.textContent =
+            "Hmm... something went wrong. Please try again.";
 
     }
 
-}
+
+    btnPresent.style.visibility = "hidden";
+
+    btnNext.textContent = "Play Again";
 
 
-/* =========================
-   GAME LEVEL 1
-========================= */
+    btnNext.onclick = function () {
 
-function one() {
+        resetGame();
 
-    var1.innerHTML = "2";
-    var2.innerHTML = "6";
-    var3.innerHTML = "5";
-    var4.innerHTML = "8";
-    var5.innerHTML = "10";
-    var6.innerHTML = "";
+    };
 
 }
 
 
 /* =========================
-   GAME LEVEL 2
+   RESET GAME
 ========================= */
 
-function two() {
+function resetGame() {
 
-    var1.innerHTML = "1";
-    var2.innerHTML = "2";
-    var3.innerHTML = "4";
-    var4.innerHTML = "3";
-    var5.innerHTML = "";
-    var6.innerHTML = "";
+    currentCard = 0;
 
-}
+    guessedNumber = 0;
 
+    btnPresent.style.visibility = "hidden";
 
-/* =========================
-   GAME LEVEL 3
-========================= */
+    btnNext.textContent = "Let's Go";
 
-function three() {
+    btnNext.onclick = function () {
 
-    var1.innerHTML = "5";
-    var2.innerHTML = "9";
-    var3.innerHTML = "10";
-    var4.innerHTML = "3";
-    var5.innerHTML = "";
-    var6.innerHTML = "";
+        showCard();
 
-}
+    };
 
-
-/* =========================
-   GAME LEVEL 4
-========================= */
-
-function four() {
-
-    var1.innerHTML = "4";
-    var2.innerHTML = "7";
-    var3.innerHTML = "8";
-    var4.innerHTML = "9";
-    var5.innerHTML = "10";
-    var6.innerHTML = "3";
-
-}
-
-
-/* =========================
-   CLEAR GAME NUMBERS
-========================= */
-
-function zero() {
-
-    var1.innerHTML = "";
-    var2.innerHTML = "";
-    var3.innerHTML = "";
-    var4.innerHTML = "";
-    var5.innerHTML = "";
-    var6.innerHTML = "";
+    gameText.textContent =
+        "Guess a number from 1 to 10";
 
 }
 
